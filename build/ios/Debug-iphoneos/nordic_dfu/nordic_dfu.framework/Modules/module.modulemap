@@ -1,0 +1,11 @@
+framework module nordic_dfu {
+  umbrella header "nordic_dfu-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module nordic_dfu.Swift {
+    header "nordic_dfu-Swift.h"
+    requires objc
+}
