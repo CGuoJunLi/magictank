@@ -97,7 +97,7 @@ class _UpgradeState extends State<Upgrade> {
     //换蓝牙
     //mcbtmodel.disconnect();
     print(mcbtmodel.connetcedBtDriver!["id"]);
-
+    // mcbtmodel.dfusenddata();
     /*
     await NordicDfu.startDfu(
       mcbtmodel.connetcedBtDriver!["id"],
@@ -127,12 +127,12 @@ class _UpgradeState extends State<Upgrade> {
       Fluttertoast.showToast(msg: "升级失败");
       Navigator.pop(context, true);
     });*/
+
     await NordicDfu().startDfu(
-        "FD3E9841-5843-7AFE-9DB1-F83E88479A42".toLowerCase(),
-        _localPath + '/mcbin.zip',
+        mcbtmodel.connetcedBtDriver!["id"], _localPath + '/mcbin.zip',
         fileInAsset: false,
         iosSpecialParameter:
-            IosSpecialParameter(alternativeAdvertisingNameEnabled: true),
+            IosSpecialParameter(alternativeAdvertisingNameEnabled: false),
         onProgressChanged: (
       deviceAddress,
       percent,
@@ -142,14 +142,15 @@ class _UpgradeState extends State<Upgrade> {
       partsTotal,
     ) async {
       debugPrint('deviceAddress: $deviceAddress, percent: $percent');
-
+      sendvalue = percent;
       // sendvalue = percent;
-      if (sendvalue == 100) {
+      if (percent == 100) {
         await Future.delayed(const Duration(seconds: 3));
         //  mcbtmodel.connection(mcbtmodel.device);
         Fluttertoast.showToast(msg: "升级成功,请手动连接机器");
         Navigator.pop(context, true);
       }
+      setState(() {});
     }, onDeviceConnected: ((str) {
       print("链接成功" + str);
     }), onDeviceConnecting: ((str) {

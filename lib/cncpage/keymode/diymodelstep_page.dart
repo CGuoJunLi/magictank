@@ -2185,7 +2185,6 @@ class _DiyModelStepPageState extends State<DiyModelStepPage> {
                             decoration: const InputDecoration(hintText: "必填"),
                             controller: TextEditingController(
                                 text: modeldata["cnname"]),
-                            keyboardType: TextInputType.number,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(18),
                               //FilteringTextInputFormatter(intRegExp, allow: true),
@@ -2210,7 +2209,6 @@ class _DiyModelStepPageState extends State<DiyModelStepPage> {
                           child: TextField(
                             controller:
                                 TextEditingController(text: modeldata["brand"]),
-                            keyboardType: TextInputType.number,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(18),
                               //FilteringTextInputFormatter(intRegExp, allow: true),
@@ -2235,7 +2233,6 @@ class _DiyModelStepPageState extends State<DiyModelStepPage> {
                           child: TextField(
                             controller: TextEditingController(
                                 text: modeldata["chnote"]),
-                            keyboardType: TextInputType.number,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(18),
                               //FilteringTextInputFormatter(intRegExp, allow: true),

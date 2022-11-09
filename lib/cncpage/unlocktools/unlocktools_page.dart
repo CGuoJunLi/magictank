@@ -189,7 +189,7 @@ class _UnlockToolsState extends State<UnlockTools> {
       //print(j);
       for (var i = 0; i < (count <= 6 ? count : 6); i++) {
         temp1.add(Container(
-          width: getw(30),
+          width: getw(28),
           height: geth(43),
           decoration: BoxDecoration(
               color: currenttooth == j * 6 + i
@@ -797,7 +797,45 @@ class _UnlockToolsState extends State<UnlockTools> {
                           "image/tank/readtools/icon/reade_code_lock.png",
                           fit: BoxFit.cover,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          ahNums[seletooth] = "?";
+                          if (inputmode == 1) {
+                            seletooth--;
+
+                            if (seletooth < 0) {
+                              if (keytoolsdata["keyid"] == 158 ||
+                                  keytoolsdata["keyid"] == 159) {
+                                seletooth = 5;
+                              } else {
+                                if (keytoolsdata["side"] == 2) {
+                                  seletooth = tooth * 2 - 1;
+                                } else {
+                                  seletooth = tooth - 1;
+                                }
+                              }
+                            }
+                          } else {
+                            seletooth++;
+                            if (keytoolsdata["keyid"] == 158 ||
+                                keytoolsdata["keyid"] == 159) {
+                              if (seletooth > 5) {
+                                seletooth = 0;
+                              }
+                            } else {
+                              if (keytoolsdata["side"] == 2) {
+                                if (seletooth > tooth * 2 - 1) {
+                                  seletooth = 0;
+                                }
+                              } else {
+                                if (seletooth > tooth - 1) {
+                                  seletooth = 0;
+                                }
+                              }
+                            }
+                          }
+
+                          setState(() {});
+                        },
                       ),
                     ),
                     Container(

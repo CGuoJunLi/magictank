@@ -50,6 +50,7 @@ class McBlutoothServer {
   String btaddr = "";
   final FlutterReactiveBle flutterBlue = FlutterReactiveBle();
   QualifiedCharacteristic? sendmCharacteristic;
+  QualifiedCharacteristic? dfusendmCharacteristic;
   QualifiedCharacteristic? receivemCharacteristic;
   StreamSubscription? _receiveSubscription;
   StreamSubscription? _connectSubscription;
@@ -110,6 +111,10 @@ class McBlutoothServer {
             serviceId: Uuid.parse("fff0"),
             characteristicId: Uuid.parse("fff6"),
             deviceId: connectDevice.id);
+        dfusendmCharacteristic = QualifiedCharacteristic(
+            serviceId: Uuid.parse("fe59"),
+            characteristicId: Uuid.parse("0004"),
+            deviceId: connectDevice.id);
         receivemCharacteristic = QualifiedCharacteristic(
             serviceId: Uuid.parse("fff0"),
             characteristicId: Uuid.parse("fff4"),
@@ -158,6 +163,12 @@ class McBlutoothServer {
   Future<void> senddata(List<int> value) async {
     await flutterBlue.writeCharacteristicWithoutResponse(sendmCharacteristic!,
         value: value);
+  }
+
+  Future<void> dfusenddata() async {
+    await flutterBlue.writeCharacteristicWithoutResponse(
+        dfusendmCharacteristic!,
+        value: [0x01]);
   }
 
   bool getMcBtState() {
