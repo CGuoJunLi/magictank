@@ -14,7 +14,7 @@ import 'package:magictank/userappbar.dart';
 import 'package:photo_view/photo_view.dart';
 
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
-import 'package:video_player/video_player.dart';
+//import 'package:video_player/video_player.dart';
 
 import 'camerkeycanvas.dart';
 
@@ -84,8 +84,8 @@ class _DiscoverKeyState extends State<DiscoverKey> {
   int toothnum = 0; //齿深数
   int calls = 0;
   int seleaxis = 0;
-  VideoPlayerController? _controller;
-  VideoPlayerController? _toBeDisposed;
+  // VideoPlayerController? _controller;
+  // VideoPlayerController? _toBeDisposed;
   Timer? timer;
   final TextEditingController maxWidthController = TextEditingController();
   final TextEditingController maxHeightController = TextEditingController();
@@ -251,10 +251,10 @@ class _DiscoverKeyState extends State<DiscoverKey> {
 
   @override
   void deactivate() {
-    if (_controller != null) {
-      _controller!.setVolume(0.0);
-      _controller!.pause();
-    }
+    // if (_controller != null) {
+    //   _controller!.setVolume(0.0);
+    //   _controller!.pause();
+    // }
     super.deactivate();
   }
 
@@ -269,11 +269,11 @@ class _DiscoverKeyState extends State<DiscoverKey> {
 
 //
   Future<void> _disposeVideoController() async {
-    if (_toBeDisposed != null) {
-      await _toBeDisposed!.dispose();
-    }
-    _toBeDisposed = _controller;
-    _controller = null;
+    // if (_toBeDisposed != null) {
+    //   await _toBeDisposed!.dispose();
+    // }
+    // _toBeDisposed = _controller;
+    // _controller = null;
   }
 
   @override

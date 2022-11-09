@@ -95,8 +95,10 @@ class _UpgradeState extends State<Upgrade> {
   Future<void> upmclone() async {
     //开始升级进程
     //换蓝牙
-    /// mcbtmodel.disconnect();
+    //mcbtmodel.disconnect();
     print(mcbtmodel.connetcedBtDriver!["id"]);
+
+    /*
     await NordicDfu.startDfu(
       mcbtmodel.connetcedBtDriver!["id"],
       _localPath + '/mcbin.zip',
@@ -105,7 +107,7 @@ class _UpgradeState extends State<Upgrade> {
           DefaultDfuProgressListenerAdapter(onProgressChangedHandle: (
         deviceAddress,
         percent,
-        speed,
+        speed,  
         avgSpeed,
         currentPart,
         partsTotal,
@@ -124,7 +126,56 @@ class _UpgradeState extends State<Upgrade> {
     ).onError((error, stackTrace) {
       Fluttertoast.showToast(msg: "升级失败");
       Navigator.pop(context, true);
-    });
+    });*/
+    await NordicDfu().startDfu(
+        "FD3E9841-5843-7AFE-9DB1-F83E88479A42".toLowerCase(),
+        _localPath + '/mcbin.zip',
+        fileInAsset: false,
+        iosSpecialParameter:
+            IosSpecialParameter(alternativeAdvertisingNameEnabled: true),
+        onProgressChanged: (
+      deviceAddress,
+      percent,
+      speed,
+      avgSpeed,
+      currentPart,
+      partsTotal,
+    ) async {
+      debugPrint('deviceAddress: $deviceAddress, percent: $percent');
+
+      // sendvalue = percent;
+      if (sendvalue == 100) {
+        await Future.delayed(const Duration(seconds: 3));
+        //  mcbtmodel.connection(mcbtmodel.device);
+        Fluttertoast.showToast(msg: "升级成功,请手动连接机器");
+        Navigator.pop(context, true);
+      }
+    }, onDeviceConnected: ((str) {
+      print("链接成功" + str);
+    }), onDeviceConnecting: ((str) {
+      print("链接中" + str);
+    }), onDeviceDisconnected: ((str) {
+      print("断开连接" + str);
+    }), onDeviceDisconnecting: ((str) {
+      print("断开连接中" + str);
+    }), onDfuAborted: ((str) {
+      print(str);
+    }), onDfuCompleted: ((str) {
+      print("终止" + str);
+    }), onDfuProcessStarted: ((str) {
+      print("onDfuProcessStarted" + str);
+    }), onDfuProcessStarting: ((str) {
+      print("onDfuProcessStarting：" + str);
+    }), onEnablingDfuMode: ((str) {
+      print("onEnablingDfuMode：" + str);
+    }), onFirmwareValidating: ((str) {
+      print("onFirmwareValidating：" + str);
+    }), onError: ((address, error, errorType, message) {
+      print(address);
+      print(error);
+      print(errorType);
+      print(message);
+    }));
   }
 
   Future<void> _prepareSaveDir() async {
@@ -193,10 +244,11 @@ class _UpgradeState extends State<Upgrade> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (step == 0) {
-                  //只有下载的时候才能取消
-                  Navigator.pop(context, false);
-                }
+                //   if (step == 0) {
+                //只有下载的时候才能取消
+                NordicDfu().abortDfu();
+                Navigator.pop(context, false);
+                //  }
               },
               child: Text(S.of(context).cancel),
             )

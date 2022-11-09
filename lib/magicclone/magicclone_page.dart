@@ -710,7 +710,7 @@ class MagicCloneBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
-      height: 48.h,
+      height: 48.r,
       // color: const Color(0XFF6E66AA),
       padding: EdgeInsets.only(bottom: 5.w),
       child: Row(

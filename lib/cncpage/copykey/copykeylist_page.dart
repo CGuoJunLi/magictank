@@ -761,28 +761,40 @@ class _CopyKeyPageState extends State<CopyKeyPage> {
             ),
           ),
           leading: IconButton(
-            onPressed: () {
-              if (state == 0) {
-                Navigator.pop(context);
-              } else {
-                state--;
-                setState(() {});
-              }
-            },
-            color: Colors.black,
-            icon: Image.asset("image/share/Icon_back.png"),
-          ),
-          actions: [
-            IconButton(
               onPressed: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) {
-                  return const Tips4Page();
-                }), (route) => false);
+                if (state == 0) {
+                  Navigator.pop(context);
+                } else {
+                  state--;
+                  setState(() {});
+                }
               },
               color: Colors.black,
-              icon: Image.asset("image/share/Icon_home.png"),
-            )
+              icon: SizedBox(
+                width: 24.r,
+                height: 20.r,
+                child: Image.asset(
+                  "image/share/Icon_back.png",
+                  fit: BoxFit.cover,
+                ),
+              )),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) {
+                    return const Tips4Page();
+                  }), (route) => false);
+                },
+                color: Colors.black,
+                icon: SizedBox(
+                  width: 24.r,
+                  height: 20.r,
+                  child: Image.asset(
+                    "image/share/Icon_home.png",
+                    fit: BoxFit.cover,
+                  ),
+                ))
           ],
         ),
         body: statewidget(context),

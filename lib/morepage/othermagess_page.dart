@@ -441,7 +441,7 @@ class _OtherMessagePageBarState extends State<OtherMessagePageBar> {
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
-      height: 48.h,
+      height: 48.r,
       padding: EdgeInsets.only(bottom: 5.w),
       child: Row(
         children: [

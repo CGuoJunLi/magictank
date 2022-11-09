@@ -7,7 +7,7 @@ import 'package:magictank/http/api.dart';
 import 'package:magictank/magicsmart/bluetooth/msclonebt_mananger.dart';
 //import 'package:flutter_downloader/flutter_downloader.dart';
 
-import 'package:nordic_dfu/nordic_dfu.dart';
+//import 'package:nordic_dfu/nordic_dfu.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 
@@ -90,28 +90,28 @@ class _SmartUpgradeState extends State<SmartUpgrade> {
 
   Future<void> upmclone() async {
     //开始升级进程
-    await NordicDfu.startDfu(
-      msbtmodel.device.id.toString(),
-      _localPath + '/mcbin.zip',
-      fileInAsset: false,
-      progressListener:
-          DefaultDfuProgressListenerAdapter(onProgressChangedHandle: (
-        deviceAddress,
-        percent,
-        speed,
-        avgSpeed,
-        currentPart,
-        partsTotal,
-      ) {
-        debugPrint('deviceAddress: $deviceAddress, percent: $percent');
-        setState(() {
-          sendvalue = percent!;
-          if (sendvalue == 100) {
-            Navigator.pop(context, true);
-          }
-        });
-      }),
-    );
+    // await NordicDfu.startDfu(
+    //   msbtmodel.device.id.toString(),
+    //   _localPath + '/mcbin.zip',
+    //   fileInAsset: false,
+    //   progressListener:
+    //       DefaultDfuProgressListenerAdapter(onProgressChangedHandle: (
+    //     deviceAddress,
+    //     percent,
+    //     speed,
+    //     avgSpeed,
+    //     currentPart,
+    //     partsTotal,
+    //   ) {
+    //     debugPrint('deviceAddress: $deviceAddress, percent: $percent');
+    //     setState(() {
+    //       sendvalue = percent!;
+    //       if (sendvalue == 100) {
+    //         Navigator.pop(context, true);
+    //       }
+    //     });
+    //   }),
+    // );
   }
 
   Future<void> _prepareSaveDir() async {

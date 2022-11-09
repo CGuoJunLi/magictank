@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'package:magictank/userappbar.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({Key? key}) : super(key: key);
@@ -36,10 +36,6 @@ class _NewsState extends State<News> {
 
   @override
   Widget build(BuildContext context) {
-    return InAppWebView(
-      initialUrlRequest: URLRequest(
-        url: Uri.parse("https://www.xingruiauto.com"),
-      ),
-    );
+    return WebView(initialUrl: "https://www.xingruiauto.com");
   }
 }

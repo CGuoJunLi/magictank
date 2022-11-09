@@ -21,7 +21,7 @@ import 'package:magictank/dialogshow/dialogpage.dart';
 import 'package:magictank/userappbar.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
-import 'package:video_player/video_player.dart';
+//import 'package:video_player/video_player.dart';
 
 import '../../appdata.dart';
 
@@ -135,7 +135,7 @@ class _PhotoDiyPageState extends State<PhotoDiyPage> {
   Timer? timer;
   int calls = 0;
   double currentscale = 0.0;
-  VideoPlayerController? _controller;
+  // VideoPlayerController? _controller;
   //VideoPlayerController? _toBeDisposed;
 
   final ImagePicker _picker = ImagePicker();
@@ -2470,9 +2470,9 @@ class _PhotoDiyPageState extends State<PhotoDiyPage> {
 
   void _onImageButtonPressed(ImageSource source,
       {BuildContext? context}) async {
-    if (_controller != null) {
-      await _controller!.setVolume(0.0);
-    }
+    // if (_controller != null) {
+    //   await _controller!.setVolume(0.0);
+    // }
 
     try {
       final pickedFile = await _picker.pickImage(

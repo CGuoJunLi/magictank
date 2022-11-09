@@ -88,7 +88,7 @@ class DownloadFile {
           await raf.close();
           downloadingUrls.remove(url);
 
-          failed?.call(e as DioError);
+          //failed?.call(e as DioError);
         },
         cancelOnError: true,
       );

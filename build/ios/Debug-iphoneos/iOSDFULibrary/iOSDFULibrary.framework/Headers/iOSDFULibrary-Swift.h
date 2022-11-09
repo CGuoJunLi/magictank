@@ -316,9 +316,13 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 /// \param urlToZipFile URL to the Distribution packet (ZIP).
 ///
 ///
+/// throws:
+/// <code>DFUFirmwareError</code> if the file is invalid, or
+/// <code>DFUStreamZipError</code> if creating a Zip stream failed.
+///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithUrlToZipFile:(NSURL * _Nonnull)urlToZipFile;
+- (nullable instancetype)initWithUrlToZipFile:(NSURL * _Nonnull)urlToZipFile error:(NSError * _Nullable * _Nullable)error;
 /// Creates the DFU Firmware object from a Distribution packet (ZIP).
 /// Such file must contain a manifest.json file with firmware metadata and at
 /// least one firmware binaries. Read more about the Distribution packet on
@@ -328,9 +332,13 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 /// \param type The type of the firmware to use.
 ///
 ///
+/// throws:
+/// <code>DFUFirmwareError</code> if the file is invalid, or
+/// <code>DFUStreamZipError</code> if creating a Zip stream failed.
+///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithUrlToZipFile:(NSURL * _Nonnull)urlToZipFile type:(enum DFUFirmwareType)type OBJC_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithUrlToZipFile:(NSURL * _Nonnull)urlToZipFile type:(enum DFUFirmwareType)type error:(NSError * _Nullable * _Nullable)error OBJC_DESIGNATED_INITIALIZER;
 /// Creates the DFU Firmware object from a Distribution packet (ZIP).
 /// Such file must contain a manifest.json file with firmware metadata and at
 /// least one firmware binaries. Read more about the Distribution packet on
@@ -338,9 +346,15 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 /// \param zipFile The Distribution packet (ZIP) data.
 ///
 ///
+/// throws:
+/// <code>DFUFirmwareError</code> if the file is invalid,
+/// <code>DFUStreamZipError</code> if creating a Zip stream failed,
+/// or an error in the Cocoa domain, if the data cannot be written
+/// to a temporary location.
+///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithZipFile:(NSData * _Nonnull)zipFile;
+- (nullable instancetype)initWithZipFile:(NSData * _Nonnull)zipFile error:(NSError * _Nullable * _Nullable)error;
 /// Creates the DFU Firmware object from a Distribution packet (ZIP).
 /// Such file must contain a manifest.json file with firmware metadata and at
 /// least one firmware binaries. Read more about the Distribution packet on
@@ -350,9 +364,15 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 /// \param type The type of the firmware to use.
 ///
 ///
+/// throws:
+/// <code>DFUFirmwareError</code> if the file is invalid,
+/// <code>DFUStreamZipError</code> if creating a Zip stream failed,
+/// or an error in the Cocoa domain, if the data cannot be written
+/// to a temporary location.
+///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithZipFile:(NSData * _Nonnull)zipFile type:(enum DFUFirmwareType)type OBJC_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithZipFile:(NSData * _Nonnull)zipFile type:(enum DFUFirmwareType)type error:(NSError * _Nullable * _Nullable)error OBJC_DESIGNATED_INITIALIZER;
 /// Creates the DFU Firmware object from a BIN or HEX file. Setting the DAT
 /// file with an Init packet is optional, but may be required by the bootloader
 /// (SDK 7.0.0+).
@@ -363,9 +383,14 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 /// \param type The type of the firmware.
 ///
 ///
+/// throws:
+/// <code>DFUFirmwareError</code> if the file is invalid,
+/// <code>DFUStreamHexError</code> if the hex file is invalid,
+/// or an error in the Cocoa domain, if <code>url</code> cannot be read.
+///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithUrlToBinOrHexFile:(NSURL * _Nonnull)urlToBinOrHexFile urlToDatFile:(NSURL * _Nullable)urlToDatFile type:(enum DFUFirmwareType)type OBJC_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithUrlToBinOrHexFile:(NSURL * _Nonnull)urlToBinOrHexFile urlToDatFile:(NSURL * _Nullable)urlToDatFile type:(enum DFUFirmwareType)type error:(NSError * _Nullable * _Nullable)error OBJC_DESIGNATED_INITIALIZER;
 /// Creates the DFU Firmware object from a BIN data. Setting the DAT
 /// file with an Init packet is optional, but may be required by the bootloader
 /// (SDK 7.0.0+).
@@ -378,7 +403,7 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 ///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithBinFile:(NSData * _Nonnull)binFile datFile:(NSData * _Nullable)datFile type:(enum DFUFirmwareType)type OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithBinFile:(NSData * _Nonnull)binFile datFile:(NSData * _Nullable)datFile type:(enum DFUFirmwareType)type OBJC_DESIGNATED_INITIALIZER;
 /// Creates the DFU Firmware object from a HEX data. Setting the DAT
 /// file with an Init packet is optional, but may be required by the bootloader
 /// (SDK 7.0.0+).
@@ -389,9 +414,12 @@ SWIFT_CLASS("_TtC13iOSDFULibrary11DFUFirmware")
 /// \param type The type of the firmware.
 ///
 ///
+/// throws:
+/// <code>DFUStreamHexError</code> if the hex file is invalid.
+///
 /// returns:
 /// The DFU firmware object or <code>nil</code> in case of an error.
-- (nullable instancetype)initWithHexFile:(NSData * _Nonnull)hexFile datFile:(NSData * _Nullable)datFile type:(enum DFUFirmwareType)type OBJC_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithHexFile:(NSData * _Nonnull)hexFile datFile:(NSData * _Nullable)datFile type:(enum DFUFirmwareType)type error:(NSError * _Nullable * _Nullable)error OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -843,10 +871,12 @@ SWIFT_CLASS("_TtC13iOSDFULibrary19DFUServiceInitiator")
 ///
 /// \param loggerQueue The dispatch queue to invoke all logger events on.
 ///
+/// \param centralManagerOptions An optional dictionary that contains initialization options for <code>CBCentralManager</code>.
+///
 ///
 /// returns:
 /// The initiator instance.
-- (nonnull instancetype)initWithQueue:(dispatch_queue_t _Nullable)queue delegateQueue:(dispatch_queue_t _Nonnull)delegateQueue progressQueue:(dispatch_queue_t _Nonnull)progressQueue loggerQueue:(dispatch_queue_t _Nonnull)loggerQueue OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithQueue:(dispatch_queue_t _Nullable)queue delegateQueue:(dispatch_queue_t _Nonnull)delegateQueue progressQueue:(dispatch_queue_t _Nonnull)progressQueue loggerQueue:(dispatch_queue_t _Nonnull)loggerQueue centralManagerOptions:(NSDictionary<NSString *, id> * _Nullable)centralManagerOptions OBJC_DESIGNATED_INITIALIZER;
 /// Sets the file with the firmware. The file must be specified before calling
 /// <code>start(...)</code> method.
 /// \param file The firmware wrapper object.
@@ -1078,7 +1108,7 @@ SWIFT_CLASS("_TtC13iOSDFULibrary25LegacyDFUServiceInitiator")
 @interface LegacyDFUServiceInitiator : DFUServiceInitiator
 - (DFUServiceController * _Nullable)startWithTargetWithIdentifier:(NSUUID * _Nonnull)uuid SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)initWithCentralManager:(CBCentralManager * _Nonnull)centralManager target:(CBPeripheral * _Nonnull)target OBJC_DESIGNATED_INITIALIZER SWIFT_DEPRECATED;
-- (nonnull instancetype)initWithQueue:(dispatch_queue_t _Nullable)queue delegateQueue:(dispatch_queue_t _Nonnull)delegateQueue progressQueue:(dispatch_queue_t _Nonnull)progressQueue loggerQueue:(dispatch_queue_t _Nonnull)loggerQueue OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithQueue:(dispatch_queue_t _Nullable)queue delegateQueue:(dispatch_queue_t _Nonnull)delegateQueue progressQueue:(dispatch_queue_t _Nonnull)progressQueue loggerQueue:(dispatch_queue_t _Nonnull)loggerQueue centralManagerOptions:(NSDictionary<NSString *, id> * _Nullable)centralManagerOptions OBJC_DESIGNATED_INITIALIZER;
 @end
 
 /// Log level. Logger application may filter log entries based on their level.
@@ -1132,7 +1162,7 @@ SWIFT_CLASS("_TtC13iOSDFULibrary25SecureDFUServiceInitiator")
 @interface SecureDFUServiceInitiator : DFUServiceInitiator
 - (DFUServiceController * _Nullable)startWithTargetWithIdentifier:(NSUUID * _Nonnull)uuid SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)initWithCentralManager:(CBCentralManager * _Nonnull)centralManager target:(CBPeripheral * _Nonnull)target OBJC_DESIGNATED_INITIALIZER SWIFT_DEPRECATED;
-- (nonnull instancetype)initWithQueue:(dispatch_queue_t _Nullable)queue delegateQueue:(dispatch_queue_t _Nonnull)delegateQueue progressQueue:(dispatch_queue_t _Nonnull)progressQueue loggerQueue:(dispatch_queue_t _Nonnull)loggerQueue OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithQueue:(dispatch_queue_t _Nullable)queue delegateQueue:(dispatch_queue_t _Nonnull)delegateQueue progressQueue:(dispatch_queue_t _Nonnull)progressQueue loggerQueue:(dispatch_queue_t _Nonnull)loggerQueue centralManagerOptions:(NSDictionary<NSString *, id> * _Nullable)centralManagerOptions OBJC_DESIGNATED_INITIALIZER;
 @end
 
 #if __has_attribute(external_source_symbol)

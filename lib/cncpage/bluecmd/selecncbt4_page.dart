@@ -133,8 +133,7 @@ class _SeleCncPageState extends State<SeleCncBT4Page> {
     Digest digest = md5.convert(content);
     btnamemd5 = base64.encode(digest.bytes);
     // print("$btnamemd5,${result.device.name}");
-    if (driver.name.contains(btnamemd5.substring(0, 7)) ||
-        (driver.name.contains("MT-"))) {
+    if (driver.name.length > 15 || (driver.name.contains("MT-"))) {
       return true;
     } else {
       if (appData.limit == 10) {
@@ -150,51 +149,48 @@ class _SeleCncPageState extends State<SeleCncBT4Page> {
   }
 
   Widget bltitle(context, index) {
-    return selebttype(btlist[index])
-        //result.device.name.length == 16
-        ? Card(
-            child: TextButton(
-              onPressed: () async {
-                if (cncbt4model.connetcedBtDriver != null) {
-                  cncbt4model.disconnect();
-                  await Future.delayed(Duration(seconds: 2));
-                }
-                pd.show(max: 100, msg: "连接中..");
-                cncbt4model.connection(btlist[index]);
-                // try {
-                //   int have = appData.isactivation
-                //       .indexWhere((d) => d == btlist[index].name);
-                //   if (have > 0) {
-                //     print("扫描存在");
-                //     cncbt4model.connection(btlist[index]);
-                //   } else {
-                //     print("扫描不存在");
-                //     var res = await Api.isactivation(
-                //         btlist[index].name.substring(3, 11));
-                //     if (res["state"]) {
-                //       cncbt4model.connection(btlist[index]);
-                //     } else {
-                //       pd.close();
-                //       Fluttertoast.showToast(msg: "请连接网路");
-                //     }
-                //   }
-                // } catch (e) {}
-              },
-              child: SizedBox(
-                height: 50.h,
-                child: Row(
-                  children: [
-                    const Icon(Icons.computer),
-                    const Expanded(child: SizedBox()),
-                    Text(btlist[index].name),
-                    const Expanded(child: SizedBox()),
-                    Text(S.of(context).connect),
-                  ],
-                ),
-              ),
-            ),
-          )
-        : Container();
+    return Card(
+      child: TextButton(
+        onPressed: () async {
+          if (cncbt4model.connetcedBtDriver != null) {
+            cncbt4model.disconnect();
+            await Future.delayed(Duration(seconds: 2));
+          }
+          pd.show(max: 100, msg: "连接中..");
+          cncbt4model.connection(btlist[index]);
+          // try {
+          //   int have = appData.isactivation
+          //       .indexWhere((d) => d == btlist[index].name);
+          //   if (have > 0) {
+          //     print("扫描存在");
+          //     cncbt4model.connection(btlist[index]);
+          //   } else {
+          //     print("扫描不存在");
+          //     var res = await Api.isactivation(
+          //         btlist[index].name.substring(3, 11));
+          //     if (res["state"]) {
+          //       cncbt4model.connection(btlist[index]);
+          //     } else {
+          //       pd.close();
+          //       Fluttertoast.showToast(msg: "请连接网路");
+          //     }
+          //   }
+          // } catch (e) {}
+        },
+        child: SizedBox(
+          height: 50.h,
+          child: Row(
+            children: [
+              const Icon(Icons.computer),
+              const Expanded(child: SizedBox()),
+              Text(btlist[index].name),
+              const Expanded(child: SizedBox()),
+              Text(S.of(context).connect),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override

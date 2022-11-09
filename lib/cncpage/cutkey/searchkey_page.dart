@@ -1063,7 +1063,13 @@ class _SearchKeyPageState extends State<SearchKeyPage> {
               }
             },
             color: Colors.black,
-            icon: Image.asset("image/share/Icon_back.png"),
+            icon: SizedBox(
+                width: 24.r,
+                height: 20.r,
+                child: Image.asset(
+                  "image/share/Icon_back.png",
+                  fit: BoxFit.cover,
+                )),
           ),
           actions: [
             IconButton(
@@ -1074,7 +1080,13 @@ class _SearchKeyPageState extends State<SearchKeyPage> {
                 }), (route) => false);
               },
               color: Colors.black,
-              icon: Image.asset("image/share/Icon_home.png"),
+              icon: SizedBox(
+                  width: 24.r,
+                  height: 20.r,
+                  child: Image.asset(
+                    "image/share/Icon_home.png",
+                    fit: BoxFit.cover,
+                  )),
             )
           ],
         ),

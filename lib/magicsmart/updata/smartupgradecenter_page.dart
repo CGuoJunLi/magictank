@@ -10,8 +10,6 @@ import 'package:magictank/alleventbus.dart';
 import 'package:magictank/appdata.dart';
 import 'package:magictank/dialogshow/dialogpage.dart';
 import 'package:magictank/http/api.dart';
-
-import 'package:open_file/open_file.dart';
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 import '../../main.dart';
@@ -137,7 +135,6 @@ class _SmartUpgradeCenterPageState extends State<SmartUpgradeCenterPage> {
           if (!pd.isOpen() || event.progress == 100) {
             pd.close();
             eventBusDf.cancel();
-            OpenFile.open(appData.apkPath);
           }
           setState(() {});
         }

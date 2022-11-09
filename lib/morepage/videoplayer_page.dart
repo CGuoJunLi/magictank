@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
 import 'package:magictank/userappbar.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class VideoPlayerPage extends StatelessWidget {
   final String url;
@@ -10,10 +11,6 @@ class VideoPlayerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: userAppBar(context),
-        body: InAppWebView(
-          initialUrlRequest: URLRequest(
-            url: Uri.parse(url),
-          ),
-        ));
+        body: WebView(initialUrl: "https://www.xingruiauto.com"));
   }
 }

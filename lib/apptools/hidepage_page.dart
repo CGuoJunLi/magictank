@@ -68,15 +68,21 @@ class _HidePagePageState extends State<HidePagePage> {
             ),
             actions: [
               IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) {
-                    return const Tips4Page();
-                  }), (route) => false);
-                },
-                color: Colors.black,
-                icon: Image.asset("image/share/Icon_home.png"),
-              )
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) {
+                      return const Tips4Page();
+                    }), (route) => false);
+                  },
+                  color: Colors.black,
+                  icon: SizedBox(
+                    width: 24.r,
+                    height: 20.r,
+                    child: Image.asset(
+                      "image/share/Icon_home.png",
+                      fit: BoxFit.cover,
+                    ),
+                  ))
             ],
           ),
           // appBar: PreferredSize(

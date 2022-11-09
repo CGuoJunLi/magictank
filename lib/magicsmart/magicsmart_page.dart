@@ -17,7 +17,7 @@ import 'package:magictank/dialogshow/dialogpage.dart';
 import 'package:magictank/http/api.dart';
 import 'package:magictank/magicsmart/bluetooth/sendcmd.dart';
 import 'package:marquee/marquee.dart';
-import 'package:open_file/open_file.dart';
+
 import 'package:provider/provider.dart';
 
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
@@ -198,7 +198,6 @@ class _MagIcSmartPageState extends State<MagIcSmartPage> {
           if (!pd.isOpen() || event.progress == 100) {
             pd.close();
             eventBusDf.cancel();
-            OpenFile.open(appData.apkPath);
           }
           setState(() {});
         }

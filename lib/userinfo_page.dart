@@ -13,7 +13,6 @@ import 'package:magictank/generated/l10n.dart';
 import 'package:magictank/http/api.dart';
 import 'package:magictank/userappbar.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
-import 'package:video_player/video_player.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({Key? key}) : super(key: key);
@@ -55,8 +54,6 @@ class _UserInfoState extends State<UserInfo> {
   //dynamic _pickImageError;
   bool isVideo = false;
 
-  VideoPlayerController? _controller;
-  VideoPlayerController? _toBeDisposed;
   //String? _retrieveDataError;
   final ImagePicker _picker = ImagePicker();
 
@@ -67,32 +64,20 @@ class _UserInfoState extends State<UserInfo> {
   Future<void> _playVideo(XFile? file) async {
     if (file != null && mounted) {
       await _disposeVideoController();
-      late VideoPlayerController controller;
-      if (kIsWeb) {
-        controller = VideoPlayerController.network(file.path);
-      } else {
-        controller = VideoPlayerController.file(File(file.path));
-      }
-      _controller = controller;
+
       // In web, most browsers won't honor a programmatic call to .play
       // if the video has a sound track (and is not muted).
       // Mute the video so it auto-plays in web!
       // This is not needed if the call to .play is the result of user
       // interaction (clicking on a "play" button, for example).
       double volume = kIsWeb ? 0.0 : 1.0;
-      await controller.setVolume(volume);
-      await controller.initialize();
-      await controller.setLooping(true);
-      await controller.play();
+
       setState(() {});
     }
   }
 
   void _onImageButtonPressed(ImageSource source,
       {BuildContext? context}) async {
-    if (_controller != null) {
-      await _controller!.setVolume(0.0);
-    }
     if (isVideo) {
       final XFile? file = await _picker.pickVideo(
           source: source, maxDuration: const Duration(seconds: 10));
@@ -127,10 +112,6 @@ class _UserInfoState extends State<UserInfo> {
 
   @override
   void deactivate() {
-    if (_controller != null) {
-      _controller!.setVolume(0.0);
-      _controller!.pause();
-    }
     super.deactivate();
   }
 
@@ -143,13 +124,7 @@ class _UserInfoState extends State<UserInfo> {
     super.dispose();
   }
 
-  Future<void> _disposeVideoController() async {
-    if (_toBeDisposed != null) {
-      await _toBeDisposed!.dispose();
-    }
-    _toBeDisposed = _controller;
-    _controller = null;
-  }
+  Future<void> _disposeVideoController() async {}
 
   Future<void> retrieveLostData() async {
     final LostDataResponse response = await _picker.retrieveLostData();
@@ -444,38 +419,28 @@ typedef OnPickImageCallback = void Function(
     double? maxWidth, double? maxHeight, int? quality);
 
 class AspectRatioVideo extends StatefulWidget {
-  const AspectRatioVideo(this.controller, {Key? key}) : super(key: key);
-
-  final VideoPlayerController? controller;
+  const AspectRatioVideo({Key? key}) : super(key: key);
 
   @override
   AspectRatioVideoState createState() => AspectRatioVideoState();
 }
 
 class AspectRatioVideoState extends State<AspectRatioVideo> {
-  VideoPlayerController? get controller => widget.controller;
   bool initialized = false;
 
   void _onVideoControllerUpdate() {
     if (!mounted) {
       return;
     }
-    if (initialized != controller!.value.isInitialized) {
-      initialized = controller!.value.isInitialized;
-      setState(() {});
-    }
   }
 
   @override
   void initState() {
     super.initState();
-
-    controller!.addListener(_onVideoControllerUpdate);
   }
 
   @override
   void dispose() {
-    controller!.removeListener(_onVideoControllerUpdate);
     super.dispose();
   }
 
@@ -484,8 +449,8 @@ class AspectRatioVideoState extends State<AspectRatioVideo> {
     if (initialized) {
       return Center(
         child: AspectRatio(
-          aspectRatio: controller!.value.aspectRatio,
-          child: VideoPlayer(controller!),
+          aspectRatio: 0,
+          child: Container(),
         ),
       );
     } else {

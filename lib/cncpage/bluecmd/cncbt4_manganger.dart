@@ -97,14 +97,12 @@ class CncBlutooth4Server {
             await flutterBlue.requestMtu(deviceId: connectDevice.id, mtu: 200);
         print(mtu);
         sendmCharacteristic = QualifiedCharacteristic(
-            serviceId: Uuid.parse("0000ffe0-0000-1000-8000-00805f9b34fb"),
-            characteristicId:
-                Uuid.parse("0000ffe1-0000-1000-8000-00805f9b34fb"),
+            serviceId: Uuid.parse("ffe0"),
+            characteristicId: Uuid.parse("ffe1"),
             deviceId: connectDevice.id);
         receivemCharacteristic = QualifiedCharacteristic(
-            serviceId: Uuid.parse("0000ffe0-0000-1000-8000-00805f9b34fb"),
-            characteristicId:
-                Uuid.parse("0000ffe1-0000-1000-8000-00805f9b34fb"),
+            serviceId: Uuid.parse("ffe0"),
+            characteristicId: Uuid.parse("ffe1"),
             deviceId: connectDevice.id);
         _receiveData();
         cncbtmodel.state = true;

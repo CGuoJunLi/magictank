@@ -27,7 +27,7 @@ dataCallbackBle()
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
@@ -45,34 +45,22 @@ import 'package:magictank/magicsmart/bluetooth/receive.dart';
 McBlutoothServer mcbtmodel = McBlutoothServer();
 
 class McBlutoothServer {
-  ///连接状态
   bool state = false;
-
-  ///第一次连接标志位
-  bool firststate = false;
-
-  ///蓝牙开关
   bool blSwitch = false;
   String btaddr = "";
-  FlutterBlue flutterBlue = FlutterBlue.instance;
-
-  ///已连接的设备
-  BluetoothDevice? device;
-  int connect = 0;
-  BluetoothCharacteristic? sendmCharacteristic;
-  BluetoothCharacteristic? receivemCharacteristic;
-  StreamSubscription? _streamSubscriptionData;
-  StreamSubscription? _streamSubscriptionState;
-  StreamSubscription? _stateSubscription;
-  StreamSubscription? _mtuSubscription;
+  final FlutterReactiveBle flutterBlue = FlutterReactiveBle();
+  QualifiedCharacteristic? sendmCharacteristic;
+  QualifiedCharacteristic? receivemCharacteristic;
+  StreamSubscription? _receiveSubscription;
+  StreamSubscription? _connectSubscription;
+  StreamSubscription? scanbtsubscription;
   Timer? autoconnecttimer;
   Duration autoconnecttimeout = const Duration(seconds: 10);
-  bool sendmCharacteristicstate = false;
-  bool receivemCharacteristicstate = false;
-  StreamSubscription? _servicesSubscription;
-  StreamSubscription? _notifySubscription;
-  Map<String, dynamic>? connetcedBtDriver;
+  Map? connetcedBtDriver;
   bool mtu = false;
+  DiscoveredDevice? connectDevice;
+  Timer? timer;
+  bool autoconnetagain = false;
   // late Guid uuid;
   // late DeviceIdentifier deviceId;
   // late Guid serviceUuid;
@@ -80,7 +68,10 @@ class McBlutoothServer {
   // late CharacteristicProperties properties;
   // late List<BluetoothDescriptor> descriptors;
   init() {
-    // flutterBlue = FlutterBlue.instance;
+    print("初始化mc蓝牙");
+    flutterBlue.initialize();
+
+    //flutterBlue = FlutterBlue.instance;
     // sendmCharacteristic = null;
     // receivemCharacteristic = null;
     // if (_streamSubscriptionData != null) {
@@ -88,190 +79,137 @@ class McBlutoothServer {
     // }
   }
 
-  void connection(BluetoothDevice connectDevice) async {
-    if (autoconnecttimer != null) {
-      autoconnecttimer!.cancel();
-    }
-    flutterBlue.stopScan();
-    // try {
-    //   disconnect();
-    // } catch (e) {
-    //   debugPrint("$e");
-    // }
-    debugPrint("准备连接");
-    device = connectDevice;
-    try {
-      if (_streamSubscriptionData != null) {
-        _streamSubscriptionData!.cancel();
+  void connection(DiscoveredDevice connectDevice) async {
+    connectDevice = connectDevice;
+
+    _connectSubscription?.cancel();
+    print("开始连接");
+    _connectSubscription = flutterBlue
+        .connectToDevice(
+            id: connectDevice.id, connectionTimeout: Duration(seconds: 10))
+        .listen((event) async {
+      if (event.connectionState == DeviceConnectionState.connecting) {
+        print("连接中");
       }
-    } catch (e) {
-      debugPrint("取消失败");
-    }
-    runZonedGuarded(() async {
-      // var connectedDevices;
-      // connectedDevices = await flutterBlue.connectedDevices;
-      // for (int i = 0; i < connectedDevices.length; i++) {
-      //   connectedDevices[i].disconnect();
-      // }
-      await device!
-          .connect(autoConnect: false, timeout: const Duration(seconds: 10));
-      listenbtstate();
-
-      //timer!.cancel();
-      //等待设置mtu
-      // if (!Platform.isIOS) {
-      //   //ios不需要协商MTU
-      //   await device.requestMtu(512);
-      //   await Future.delayed(const Duration(seconds: 1));
-      // }
-      connetcedBtDriver = {"id": device!.id.toString()};
-      print(connetcedBtDriver);
-      debugPrint("连接成功");
-      // device.discoverServices().then((value) {
-
-      // }).onError((error, stackTrace) => null);
-      debugPrint("执行 UUID1");
-
-      List<BluetoothService> services = await device!.discoverServices();
-      if (!firststate) {
-        firststate = true;
-        debugPrint("执行 UUID");
-
-        for (var service in services) {
-          if (service.uuid.toString() ==
-              "0000fff0-0000-1000-8000-00805f9b34fb") {
-            List<BluetoothCharacteristic> characteristics =
-                service.characteristics;
-            for (var characteristic in characteristics) {
-              if (characteristic.uuid.toString() ==
-                  "0000fff4-0000-1000-8000-00805f9b34fb") {
-                debugPrint("匹配到正确的接收特征值");
-                receivemCharacteristic = characteristic;
-                receivemCharacteristicstate = true;
-                if (sendmCharacteristicstate) {
-                  break;
-                }
-              }
-              if (characteristic.uuid.toString() ==
-                      "0000fff6-0000-1000-8000-00805f9b34fb"
-                  //"49535343-8841-43f4-a8d4-ecbe34729bb3"
-                  ) {
-                debugPrint("匹配到正确的发送特征值");
-                sendmCharacteristic = characteristic;
-                sendmCharacteristicstate = true;
-                if (receivemCharacteristicstate) {
-                  break;
-                }
-              }
-            }
-          }
-        }
-        receivemCharacteristicstate = false;
-        sendmCharacteristicstate = false;
-        debugPrint("准备接收数据");
-        await receivemCharacteristic!.setNotifyValue(true);
-        _streamSubscriptionData = receivemCharacteristic!.value.listen((value) {
-          debugPrint("收到数据");
-          debugPrint("$value");
-          if (value.isNotEmpty) {
-            processingSmartData(value);
-          }
-        });
-
-        if (Platform.isAndroid) {
-          //ios不需要协商MTU
-          autoconnecttimer = Timer(autoconnecttimeout, () {
-            eventBus.fire(MCConnectEvent(false));
-            Fluttertoast.showToast(msg: "蓝牙配置失败");
-            disconnect();
-          });
-          _mtuSubscription = device!.mtu.listen((mtu) {
-            if (mtu > 120) {
-              print(mtu);
-              autoconnecttimer?.cancel();
-              _mtuSubscription?.cancel();
-              eventBus.fire(MCConnectEvent(true));
-              progressChip.getver();
-            }
-          });
-          device!.requestMtu(512);
-        }
+      if (event.connectionState == DeviceConnectionState.disconnected) {
+        print("设备已丢失,如果是自动连接准备再次连接");
+        disconnect();
       }
-      // progressChip.getver();
-    }, (Object error, StackTrace stack) async {
-      debugPrint("蓝牙出错了");
-      debugPrint("$error");
-      eventBus.fire(MCConnectEvent(false));
+      if (event.connectionState == DeviceConnectionState.connected) {
+        print("btmang 连接成功");
+        autoconnetagain = false;
+        //  connetcedBtDriver = connectDevice;
+        connetcedBtDriver = {
+          "id": connectDevice.id,
+          "name": connectDevice.name
+        };
+        int mtu =
+            await flutterBlue.requestMtu(deviceId: connectDevice.id, mtu: 200);
+        print(mtu);
+        sendmCharacteristic = QualifiedCharacteristic(
+            serviceId: Uuid.parse("fff0"),
+            characteristicId: Uuid.parse("fff6"),
+            deviceId: connectDevice.id);
+        receivemCharacteristic = QualifiedCharacteristic(
+            serviceId: Uuid.parse("fff0"),
+            characteristicId: Uuid.parse("fff4"),
+            deviceId: connectDevice.id);
+        _receiveData();
+        state = true;
+        Fluttertoast.showToast(msg: "连接成功");
+        eventBus.fire(MCConnectEvent(true));
+        progressChip.getver();
+      }
+    }, onError: (e) {
+      print("连接断开:$e");
+      Fluttertoast.showToast(msg: "连接出错");
+      disconnect();
+    }
+            // ,onDone: (() async {
+            //   // disconnect();
+            //   //可能是假连接
+            //   print("连接完成?");
+            //   if (!state) {
+            //     connection(connectDevice);
+            //   } else {
+            //     disconnect();
+            //   }
+            // })
+            );
+  }
+
+  void checkdeviceconnetc() {
+    flutterBlue.connectedDeviceStream.listen((event) {});
+  }
+
+  _receiveData() {
+    _receiveSubscription = flutterBlue
+        .subscribeToCharacteristic(receivemCharacteristic!)
+        .listen((data) {
+      if (data.isNotEmpty) {
+        progressChip.progressbtchipdata(data);
+      }
+    }, onError: (dynamic error) {
+      print("err:$error");
       disconnect();
     });
   }
 
   Future<void> senddata(List<int> value) async {
-    debugPrint("发送数据");
-    if (state) {
-      await sendmCharacteristic!.write(value);
-    }
+    await flutterBlue.writeCharacteristicWithoutResponse(sendmCharacteristic!,
+        value: value);
   }
 
   bool getMcBtState() {
     return state;
   }
 
-  void listenbtstate() {
-    _streamSubscriptionState = device!.state.listen((event) {
-      if (event == BluetoothDeviceState.disconnected ||
-          event == BluetoothDeviceState.disconnecting) {
-        connect = 0;
-        state = false;
-        firststate = false;
-        _streamSubscriptionState!.cancel();
-        eventBus.fire(MCConnectEvent(false));
-      }
-      if (event == BluetoothDeviceState.connected) {
-        connect = 1;
-      }
-      if (event == BluetoothDeviceState.connecting) {
-        connect = 2;
-      }
-    });
-  }
-
   void disconnect() async {
+    print("断开连接");
+
+    connetcedBtDriver = null;
     state = false;
-    try {
-      await device!.disconnect();
-    } catch (e) {
-      debugPrint("$e");
+    _connectSubscription?.cancel();
+    _receiveSubscription?.cancel();
+    if (autoconnetagain) {
+      autoConnect();
+    } else {
+      eventBus.fire(MCConnectEvent(false));
     }
-    // eventBus.fire(BTStateEvent(false));
   }
 
   ///自动连接
   Future<void> autoConnect() async {
-    //如果蓝牙已打
-
-    bool connected = true;
-
-    late StreamSubscription _streamSubscriptionDrive;
-
-    flutterBlue.startScan(
-      timeout: const Duration(seconds: 5),
-    );
-    // 监听扫描结果
-    _streamSubscriptionDrive = flutterBlue.scanResults.listen((results) {
-      // 扫描结果 可扫描到的所有蓝牙设备
-      for (ScanResult r in results) {
-        debugPrint(r.device.id.toString());
-        debugPrint(appData.mcbluetoothname.toUpperCase());
-        if (r.device.id.toString().toUpperCase() ==
-                appData.mcbluetoothname.toUpperCase() &&
-            connected) {
-          connected = false;
-          flutterBlue.stopScan();
-          _streamSubscriptionDrive.cancel();
-          connection(r.device);
-        }
+    print("自动连接拷贝机:${appData.mcbluetoothname}");
+    connetcedBtDriver = null;
+    state = false;
+    _connectSubscription?.cancel();
+    _receiveSubscription?.cancel();
+    //connetcedBtDriver = {"id": appData.mcbluetoothname, "name": "magic-cloud"};
+    scanbtsubscription?.cancel();
+    timer?.cancel();
+    timer = Timer(const Duration(seconds: 20), () {
+      print("超时");
+      timer?.cancel();
+      scanbtsubscription?.cancel();
+      autoconnetagain = false;
+      Fluttertoast.showToast(msg: "查找设备超时");
+      disconnect();
+    });
+    scanbtsubscription = flutterBlue.scanForDevices(
+      withServices: [],
+    ).listen((device) {
+      if (appData.mcbluetoothname == device.id) {
+        scanbtsubscription?.cancel();
+        timer?.cancel();
+        autoconnetagain = true;
+        connection(device);
       }
+    }, onError: (e) {
+      disconnect();
+      scanbtsubscription?.cancel();
+      Fluttertoast.showToast(msg: "查找设备出错");
+      print("出错了?$e");
     });
   }
 }

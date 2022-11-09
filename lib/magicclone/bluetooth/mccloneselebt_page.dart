@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:magictank/alleventbus.dart';
 import 'package:magictank/appdata.dart';
 
+import 'package:magictank/generated/l10n.dart';
 import 'package:magictank/userappbar.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'dart:async';
@@ -27,12 +27,14 @@ class _SeleMCPageState extends State<SeleMCPage> {
   Timer? timer;
   //bool btstate = false;
   late StreamSubscription btStateEvent;
+  List<DiscoveredDevice> btlist = [];
+  StreamSubscription? scanbtsubscription;
 
   @override
   void dispose() {
-    mcbtmodel.flutterBlue.stopScan();
-    btStateEvent.cancel();
     timer?.cancel();
+    scanbtsubscription?.cancel();
+    btStateEvent.cancel();
     super.dispose();
   }
 
@@ -49,19 +51,15 @@ class _SeleMCPageState extends State<SeleMCPage> {
             pd.close();
             debugPrint("返回");
             debugPrint("蓝牙ID");
-            debugPrint(mcbtmodel.device!.id.toString());
-
-            //   print(mcbtmodel.device.id);
             appData.upgradeAppData(
-                {"mcbluetoothname": mcbtmodel.device!.id.toString()});
+                {"mcbluetoothname": mcbtmodel.connetcedBtDriver!["id"]});
             btStateEvent.cancel();
             mcbtmodel.state = true;
             Navigator.pop(context);
           } else {
-            mcbtmodel.disconnect();
-            pd.close();
-
-            /// Fluttertoast.showToast(msg: "设备连接失败,请稍后再试");
+            if (pd.isOpen()) {
+              pd.close();
+            }
           }
         });
       },
@@ -71,118 +69,78 @@ class _SeleMCPageState extends State<SeleMCPage> {
       debugPrint("开始扫描蓝牙");
       btscanning();
     }
-    //beginscanbt(); //监听蓝牙扫描状态
-    //ConnectBL(); //获取连接到的蓝牙列表
+
     super.initState();
   }
 
   Future<void> btscanning() async {
-    // btscanning();
-    await mcbtmodel.flutterBlue.stopScan();
+    btlist = [];
+    scanbtsubscription?.cancel();
     scanstates = true;
     timer?.cancel();
     timer = Timer(const Duration(seconds: 10), () {
       timer?.cancel();
+      scanbtsubscription?.cancel();
       scanstates = false;
       setState(() {});
     });
-    mcbtmodel.flutterBlue.startScan(timeout: const Duration(seconds: 10));
-    setState(() {});
-  }
-
-  bool selebttype(BluetoothDevice device) {
-    appData.machineType = 2;
-    if (device.name == "magic-cloud" || device.name.contains("MC-")) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  Widget bltitle(BluetoothDevice device) {
-    return selebttype(device)
-        //result.device.name.length == 16
-        ? Card(
-            child: StreamBuilder<BluetoothDeviceState>(
-              stream: device.state,
-              initialData: BluetoothDeviceState.connecting,
-              builder: (c, snapshot) {
-                VoidCallback? onPressed;
-                String text;
-                switch (snapshot.data) {
-                  case BluetoothDeviceState.connected:
-                    onPressed = () {
-                      device.disconnect();
-                      // disconnect();
-                    };
-                    text = '断开连接';
-                    break;
-                  case BluetoothDeviceState.disconnected:
-                    onPressed = () {
-                      pd.show(max: 100, msg: "连接中");
-
-                      mcbtmodel.connection(device);
-                    };
-                    text = '连接';
-                    break;
-                  default:
-                    onPressed = null;
-                    text = snapshot.data.toString().substring(21).toUpperCase();
-                    break;
-                }
-                return TextButton(
-                  onPressed: onPressed,
-                  child: SizedBox(
-                    height: 50.h,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.computer),
-                        const Expanded(child: SizedBox()),
-                        Text(device.name),
-                        const Expanded(child: SizedBox()),
-                        Text(text),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          )
-        : Container();
-  }
-
-  List<Widget> bllist(List<ScanResult> snapshot) {
-    List<Widget> temp = [];
-
-    //snapshot[i].device.name == "magiclcone" ||
-    for (var i = 0; i < snapshot.length; i++) {
-      if (snapshot[i].device.name.length > 1) {
-        temp.add(Card(
-          child: TextButton(
-            child: Stack(
-              children: [
-                Align(
-                  child: Text(snapshot[i].device.name),
-                  alignment: Alignment.centerLeft,
-                ),
-                const Align(
-                  child: Text("连接设备"),
-                  //child: Text("连接"),
-                  alignment: Alignment.centerRight,
-                ),
-              ],
-            ),
-            onPressed: () {
-              setState(() {
-                mcbtmodel.connection(snapshot[i].device);
-              });
-            },
-          ),
-        ));
+    scanbtsubscription = mcbtmodel.flutterBlue.scanForDevices(
+      withServices: [],
+    ).listen((device) {
+      print(device.name.contains("MC-"));
+      if ((device.name == "magic-cloud") || device.name.contains("MC-")) {
+        final knownDeviceIndex = btlist.indexWhere((d) => d.id == device.id);
+        if (knownDeviceIndex >= 0) {
+          btlist[knownDeviceIndex] = device;
+        } else {
+          print("添加");
+          btlist.add(device);
+          setState(() {});
+        }
       }
-    }
+    }, onError: (e) {
+      scanbtsubscription?.cancel();
+      print("出错了?$e");
+      scanstates = false;
+    }, onDone: () {
+      scanstates = false;
+    });
+  }
 
-    return temp;
+  bool selebttype(DiscoveredDevice driver) {
+    if (driver.name == "magic-cloud") {
+      return true;
+    }
+    return false;
+  }
+
+  Widget bltitle(context, index) {
+    return
+        //result.device.name.length == 16
+        Card(
+      child: TextButton(
+        onPressed: () async {
+          if (mcbtmodel.connetcedBtDriver != null) {
+            mcbtmodel.disconnect();
+            await Future.delayed(Duration(seconds: 2));
+          }
+          pd.show(max: 100, msg: "连接中..");
+          mcbtmodel.connection(btlist[index]);
+        },
+        child: SizedBox(
+          height: 50.h,
+          child: Row(
+            children: [
+              const Icon(Icons.computer),
+              const Expanded(child: SizedBox()),
+              Text(btlist[index].name),
+              const Expanded(child: SizedBox()),
+              Text(S.of(context).connect),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -204,7 +162,6 @@ class _SeleMCPageState extends State<SeleMCPage> {
                   child: Switch(
                     onChanged: (bool value) {
                       setState(() {});
-
                       debugPrint("$value");
                     },
                     value: mcbtmodel.blSwitch,
@@ -254,35 +211,48 @@ class _SeleMCPageState extends State<SeleMCPage> {
                   : SizedBox(),
             ],
           ),
-          const Divider(),
-          mcbtmodel.connect > 0 ? bltitle(mcbtmodel.device!) : Container(),
-          Expanded(
-            child: mcbtmodel.blSwitch
-                ? RefreshIndicator(
-                    onRefresh: () {
-                      debugPrint("下拉刷新");
-                      return btscanning();
-                    },
-                    child: StreamBuilder<List<ScanResult>>(
-                      stream: mcbtmodel.flutterBlue.scanResults,
-                      initialData: const [],
-                      builder: (c, snapshot) => ListView(
-                        children: snapshot.data!
-                            .map(
-                              (r) => bltitle(
-                                r.device,
-                              ),
-                            )
-                            .toList(),
-                      ),
+          mcbtmodel.connetcedBtDriver != null
+              ? TextButton(
+                  onPressed: () {
+                    mcbtmodel.disconnect();
+                    setState(() {});
+                  },
+                  child: SizedBox(
+                    height: 50.h,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.computer),
+                        const Expanded(child: SizedBox()),
+                        Text(mcbtmodel.connetcedBtDriver!["name"]),
+                        const Expanded(child: SizedBox()),
+                        Text("断开连接"),
+                      ],
                     ),
-                  )
-                : const Text("请先打开蓝牙"),
-          ),
-          const Text(
-            "下滑即可刷新列表",
-            style: TextStyle(color: Colors.red),
-          ),
+                  ),
+                )
+              : Container(),
+          Expanded(
+              child: ListView.builder(
+                  itemCount: btlist.length,
+                  itemBuilder: ((context, index) {
+                    return bltitle(context, index);
+                  }))),
+          SizedBox(
+            width: double.maxFinite,
+            child: ElevatedButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  // backgroundColor:
+                  //     MaterialStateProperty.all(const Color(0xff50c5c4)),
+                ),
+                onPressed: () {
+                  btscanning();
+                  setState(() {});
+                },
+                child: Column(
+                  children: [Icon(Icons.search), Text("重新搜索")],
+                )),
+          )
         ],
       ),
     );

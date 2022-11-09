@@ -22,7 +22,7 @@ import 'package:magictank/magicsmart/magicsmart_page.dart';
 import 'package:magictank/main.dart';
 import 'package:magictank/morepage/othermagess_page.dart';
 import 'package:magictank/privacy_page.dart';
-import 'package:open_file/open_file.dart';
+
 import 'package:permission_handler/permission_handler.dart'; //权限管理
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:magictank/drawer_page.dart';
@@ -183,9 +183,7 @@ class _Tips4PageState extends State<Tips4Page> {
           Fluttertoast.showToast(msg: S.of(context).downfileerror);
         } else {
           context.read<AppProvid>().appProgress(event.progress);
-          if (event.progress == 100) {
-            OpenFile.open(appData.apkPath);
-          }
+          if (event.progress == 100) {}
         }
       },
     );

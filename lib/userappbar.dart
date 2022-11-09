@@ -7,12 +7,13 @@ import 'package:magictank/home4_page.dart';
 AppBar userAppBar(context, {bool homeshow = true}) {
   return AppBar(
     elevation: 0.0,
+    toolbarHeight: 32.r,
     title: SizedBox(
       width: 97.r,
       height: 18.r,
       child: Image.asset(
         "image/share/mainappbar.png",
-        // fit: BoxFit.cover,
+        fit: BoxFit.cover,
       ),
     ),
     leading: IconButton(
@@ -20,7 +21,13 @@ AppBar userAppBar(context, {bool homeshow = true}) {
         Navigator.pop(context);
       },
       color: Colors.black,
-      icon: Image.asset("image/share/Icon_back.png"),
+      icon: SizedBox(
+          width: 24.r,
+          height: 20.r,
+          child: Image.asset(
+            "image/share/Icon_back.png",
+            fit: BoxFit.cover,
+          )),
     ),
     actions: [
       homeshow
@@ -32,8 +39,14 @@ AppBar userAppBar(context, {bool homeshow = true}) {
                 }), (route) => false);
               },
               color: Colors.black,
-              icon: Image.asset("image/share/Icon_home.png"),
-            )
+              icon: SizedBox(
+                width: 24.r,
+                height: 20.r,
+                child: Image.asset(
+                  "image/share/Icon_home.png",
+                  fit: BoxFit.cover,
+                ),
+              ))
           : SizedBox(),
     ],
   );
@@ -165,7 +178,13 @@ AppBar userTankBar(context, {bool homeshow = true}) {
         Navigator.pop(context);
       },
       color: Colors.black,
-      icon: Image.asset("image/share/Icon_back.png"),
+      icon: SizedBox(
+          width: 24.r,
+          height: 20.r,
+          child: Image.asset(
+            "image/share/Icon_back.png",
+            fit: BoxFit.cover,
+          )),
     ),
     actions: [
       homeshow
@@ -177,7 +196,13 @@ AppBar userTankBar(context, {bool homeshow = true}) {
                 }), (route) => false);
               },
               color: Colors.black,
-              icon: Image.asset("image/share/Icon_home.png"),
+              icon: SizedBox(
+                  width: 24.r,
+                  height: 20.r,
+                  child: Image.asset(
+                    "image/share/Icon_home.png",
+                    fit: BoxFit.cover,
+                  )),
             )
           : SizedBox(),
     ],
@@ -201,7 +226,13 @@ AppBar userCloneBar(context, {bool homeshow = true}) {
         Navigator.pop(context);
       },
       color: Colors.black,
-      icon: Image.asset("image/share/Icon_back.png"),
+      icon: SizedBox(
+          width: 24.r,
+          height: 20.r,
+          child: Image.asset(
+            "image/share/Icon_back.png",
+            fit: BoxFit.cover,
+          )),
     ),
     actions: [
       homeshow
@@ -213,8 +244,14 @@ AppBar userCloneBar(context, {bool homeshow = true}) {
                 }), (route) => false);
               },
               color: Colors.black,
-              icon: Image.asset("image/share/Icon_home.png"),
-            )
+              icon: SizedBox(
+                width: 24.r,
+                height: 20.r,
+                child: Image.asset(
+                  "image/share/Icon_home.png",
+                  fit: BoxFit.cover,
+                ),
+              ))
           : SizedBox(),
     ],
   );
